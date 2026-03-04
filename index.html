@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" type="text/javascript"></script>
     <style>
-      /* Arka plan siyah ve genel stil */
+      /* Arka plan tamamen siyah ve harita tam ekran */
       html, body, #map { 
         width: 100%; 
         height: 100%; 
@@ -15,36 +15,37 @@
         padding: 0; 
         background-color: #000000 !important; 
       }
-      /* Koordinat kutusu (Popup) stili */
+      /* Siyah ve Altın Sarısı Nexorium Temalı Popup */
       .leaflet-popup-content-wrapper {
         background: #1a1a1a !important;
         color: #ffffff !important;
-        border: 1px solid #ffcc00;
-        border-radius: 5px;
-        font-family: sans-serif;
+        border: 2px solid #ffcc00;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
       }
       .leaflet-popup-tip {
         background: #1a1a1a !important;
         border: 1px solid #ffcc00;
       }
-      .custom-popup b { color: #ffcc00; }
+      .custom-popup { text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      .custom-popup b { color: #ffcc00; font-size: 16px; text-transform: uppercase; }
+      .tp-cmd { background: #333; padding: 4px; border-radius: 4px; color: #00ff00; font-family: monospace; display: block; margin-top: 5px; }
     </style>
   </head>
   <body>
     <div id="map"></div>
     <script type="text/javascript">
-      var mapMinZoom = 0;
-      var mapMaxZoom = 5;
-      
+      // Harita Ayarları
       var map = new L.Map('map', {
-          maxZoom: mapMaxZoom,
-          minZoom: mapMinZoom,
+          maxZoom: 5,
+          minZoom: 0,
           crs: L.CRS.Simple
       });
 
+      // Harita Katmanı (Resim parçaların)
       var layer = L.tileLayer('{z}/{x}/{y}.png', {
-          minZoom: mapMinZoom, 
-          maxZoom: mapMaxZoom,
+          minZoom: 0, 
+          maxZoom: 5,
           tileSize: 512,
           noWrap: true
       }).addTo(map);
@@ -52,33 +53,31 @@
       // Haritayı başlangıçta ortalar
       map.setView([-100, 150], 2);
 
-      // --- OYUNCULAR İÇİN KOORDİNAT HESAPLAYICI ---
+      // --- NEXORIUM KESİN KOORDİNAT SİSTEMİ ---
       map.on('click', function(e) {
           var lat = e.latlng.lat;
           var lng = e.latlng.lng;
 
-          // MCASelector'dan aldığımız başlangıç noktaları
+          // MCASelector'dan teyit ettiğimiz başlangıç noktası (Sol Üst)
           var baslangicX = 17408;
           var baslangicZ = 10752;
 
-          // Harita piksellerini oyun koordinatına çevirme
+          // Matematiksel Senkronizasyon
+          // X ekseni sağa doğru artar (lng), Z ekseni aşağı doğru artar (lat negatif olduğu için -lat)
           var oyunX = Math.round(lng + baslangicX);
           var oyunZ = Math.round(baslangicZ - lat); 
 
           var icerik = "<div class='custom-popup'>" +
                        "<b>NEXORIUM DÜNYASI</b><br>" +
-                       "<hr style='border:0.5px solid #444'>" +
+                       "<div style='margin: 8px 0; border-top: 1px solid #444;'></div>" +
                        "X: " + oyunX + " | Z: " + oyunZ + "<br>" +
-                       "<small style='color:#888'>Komut: /tp " + oyunX + " 70 " + oyunZ + "</small>" +
+                       "<span class='tp-cmd'>/tp " + oyunX + " 70 " + oyunZ + "</span>" +
                        "</div>";
 
           L.popup()
               .setLatLng(e.latlng)
               .setContent(icerik)
               .openOn(map);
-          
-          // Konsola da yazdıralım (Geliştirici için)
-          console.log("Tıklanan Piksel: " + lat + ", " + lng);
       });
     </script>
   </body>
